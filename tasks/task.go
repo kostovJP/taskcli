@@ -3,16 +3,14 @@ package tasks
 import (
 	"errors"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Task struct {
-	Id          string
-	Description string
-	Status      string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	Id          int64 `json:"id"`
+	Description string `json:"description"`
+	Status      string `json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // just taking the description while creating a new task
@@ -23,7 +21,7 @@ func New(description string) (*Task, error) {
 	}
 
 	return &Task{
-		Id:          uuid.NewString(),
+		Id:          0,
 		Description: description,
 		Status:      "not done",
 		CreatedAt:   time.Now(),
@@ -31,18 +29,3 @@ func New(description string) (*Task, error) {
 	}, nil
 }
 
-// retrieve the task that needs to be updated and after retrieving that task
-// call this function to update the task.
-func (task *Task) Update(description string) error {
-	switch description {
-	case task.Description:
-		return nil
-	case "":
-		return errors.New("Description cannot be empty...")
-	}
-
-	task.Description = description
-
-	// everything all right.
-	return nil
-}

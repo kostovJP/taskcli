@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"strconv"
+
 	"github.com/kostovJP/Task-tracker-CLI/handlers"
 	"github.com/kostovJP/Task-tracker-CLI/utils"
 )
@@ -12,6 +14,10 @@ func main() {
 	// run a switch case type thing, first find out the second string in the
 	// command line argument and see what it is,
 	// based on that decide what operations to perform, i.e add, update, delete
+	if len(os.Args) < 2 || len(os.Args) > 4 {
+		panic("incorrect number of arguments (expected min 2 max 4)")
+	}
+	
 	args := os.Args[1:]
 	command := args[0]
 	filePath := "tasks.json"
@@ -24,21 +30,31 @@ func main() {
 			fmt.Println(err)
 			panic("couldnot add task!!")
 		}
-		fmt.Printf("Task added successfully (ID: %s)", taskId)
+		fmt.Printf("Task added successfully (ID: %d)", taskId)
 
 	case "update":
 		taskDescription := args[2]
-		taskId := args[1]
-		err := handlers.UpdateTask(taskId, taskDescription, filePath)
+		taskId, err := strconv.ParseInt(args[1], 10, 64)
+
+		if err != nil {
+			fmt.Println(err)
+			panic("unable to delete task!!")
+		}
+		err = handlers.UpdateTask(taskId, taskDescription, filePath)
 		if err != nil {
 			fmt.Println(err)
 			panic("couldnot update task!!")
 		}
-		fmt.Printf("Task %s updated successfully!", taskId)
+		fmt.Printf("Task %d updated successfully!", taskId)
 
 	case "delete":
-		taskId := args[1]
-		err := handlers.DeleteTask(taskId, filePath)
+		taskId, err := strconv.ParseInt(args[1], 10, 64)
+
+		if err != nil {
+			fmt.Println(err)
+			panic("unable to delete task!!")
+		}
+		err = handlers.DeleteTask(taskId, filePath)
 
 		if err != nil {
 			fmt.Println(err)
@@ -47,9 +63,15 @@ func main() {
 
 	case "mark-in-progress":
 		newStatus := "in-progress"
-		taskId := args[1]
+		taskId, err := strconv.ParseInt(args[1], 10, 64)
 
-		err := handlers.MarkTask(taskId, newStatus, filePath)
+		if err != nil {
+			fmt.Println(err)
+			panic("unable to delete task!!")
+		}
+
+		err = handlers.MarkTask(taskId, newStatus, filePath)
+
 		if err != nil {
 			fmt.Println(err)
 			panic("unable to change file status to in-progress")
@@ -57,9 +79,14 @@ func main() {
 
 	case "mark-done":
 		newStatus := "done"
-		taskId := args[1]
+		taskId, err := strconv.ParseInt(args[1], 10, 64)
 
-		err := handlers.MarkTask(taskId, newStatus, filePath)
+		if err != nil {
+			fmt.Println(err)
+			panic("unable to delete task!!")
+		}
+
+		err = handlers.MarkTask(taskId, newStatus, filePath)
 		if err != nil {
 			fmt.Println(err)
 			panic("unable to change file status to in-progress")

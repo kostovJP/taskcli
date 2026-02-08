@@ -19,7 +19,7 @@ func CheckFileExists(path string) bool {
 
 func DisplayTasks(taskList []tasks.Task) {
 	for _, task := range taskList {
-		fmt.Printf("ID --> %s\nDescription --> %s\nStatus --> %s\n\n---------------\n\n",
+		fmt.Printf("ID --> %d\nDescription --> %s\nStatus --> %s\n\n---------------\n\n",
 			task.Id, task.Description, task.Status)
 	}
 }

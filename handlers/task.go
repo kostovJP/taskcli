@@ -8,7 +8,7 @@ import (
 	"github.com/kostovJP/Task-tracker-CLI/utils"
 )
 
-func RetrieveTaskById(tasks []tasks.Task, taskId string) (*tasks.Task, error) {
+func RetrieveTaskById(tasks []tasks.Task, taskId int64) (*tasks.Task, error) {
 	//task is a copy of each slice element
 	//&task points to a loop variable, not the slice element
 	//so must return &tasks[index] not &task
@@ -21,7 +21,7 @@ func RetrieveTaskById(tasks []tasks.Task, taskId string) (*tasks.Task, error) {
 	return nil, errors.New("No task exists with the given id..")
 }
 
-func AddTask(description, filename string) (string, error) {
+func AddTask(description, filename string) (int64, error) {
 	// creates a new task
 	// first check if file exists...
 	fileExist := utils.CheckFileExists(filename)
@@ -29,7 +29,7 @@ func AddTask(description, filename string) (string, error) {
 	newTask, err := tasks.New(description)
 
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
 	var taskList []tasks.Task
@@ -38,15 +38,17 @@ func AddTask(description, filename string) (string, error) {
 		taskList, err = fileman.ReadJSON(filename)
 
 		if err != nil {
-			return "", err
+			return 0, err
 		}
 	}
+
+	newTask.Id = int64(len(taskList) + 1)
 
 	taskList = append(taskList, *newTask)
 	return newTask.Id, fileman.WriteJSON(filename, taskList)
 }
 
-func UpdateTask(taskId, description, path string) error {
+func UpdateTask(taskId int64, description, path string) error {
 	if description == "" {
 		return errors.New("empty description...")
 	}
@@ -67,7 +69,7 @@ func UpdateTask(taskId, description, path string) error {
 	return fileman.WriteJSON(path, tasks)
 }
 
-func DeleteTask(taskId, path string) error {
+func DeleteTask(taskId int64, path string) error {
 	// Deletes task defined by taskId.
 	taskList, err := fileman.ReadJSON(path)
 
@@ -85,6 +87,10 @@ func DeleteTask(taskId, path string) error {
 
 	for _, entry := range taskList {
 		if entry.Id != taskId {
+			// adjust the ids of the task after the deleted task.
+			if entry.Id > taskId {
+				entry.Id -= 1
+			}
 			newTaskList = append(newTaskList, entry)
 		}
 	}
@@ -92,7 +98,7 @@ func DeleteTask(taskId, path string) error {
 	return fileman.WriteJSON(path, newTaskList)
 }
 
-func MarkTask(taskId, newStatus, path string) error {
+func MarkTask(taskId int64, newStatus, path string) error {
 	taskList, err := fileman.ReadJSON(path)
 
 	if err != nil {
@@ -109,6 +115,7 @@ func MarkTask(taskId, newStatus, path string) error {
 	return fileman.WriteJSON(path, taskList)	
 }
 
+// fetches all the tasks and lists them in the terminal
 func GetAllTasks(path string) ([]tasks.Task, error) {
 	tasks, err := fileman.ReadJSON(path)
 
