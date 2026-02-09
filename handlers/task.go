@@ -77,7 +77,7 @@ func DeleteTask(taskId int64, path string) error {
 		return err
 	}
 
-	_ , err = RetrieveTaskById(taskList, taskId)
+	_, err = RetrieveTaskById(taskList, taskId)
 
 	if err != nil {
 		return err
@@ -112,16 +112,29 @@ func MarkTask(taskId int64, newStatus, path string) error {
 	}
 
 	task.Status = newStatus
-	return fileman.WriteJSON(path, taskList)	
+	return fileman.WriteJSON(path, taskList)
 }
 
 // fetches all the tasks and lists them in the terminal
-func GetAllTasks(path string) ([]tasks.Task, error) {
-	tasks, err := fileman.ReadJSON(path)
+func GetAllTasks(path, taskStatus string) ([]tasks.Task, error) {
+	taskList, err := fileman.ReadJSON(path)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return tasks, nil
+	// creating a new task list that will contain all tasks with the
+	// given status.
+	var newTaskList []tasks.Task
+	if taskStatus != "" {
+		for _, task := range taskList {
+			if task.Status == taskStatus {
+				newTaskList = append(newTaskList, task)
+			}
+		}
+
+		return newTaskList, nil
+	}
+
+	return taskList, nil
 }

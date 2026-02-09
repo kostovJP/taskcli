@@ -23,7 +23,7 @@ func New(description string) (*Task, error) {
 	return &Task{
 		Id:          0,
 		Description: description,
-		Status:      "not done",
+		Status:      "todo",
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}, nil

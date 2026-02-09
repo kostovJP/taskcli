@@ -24,6 +24,12 @@ func main() {
 
 	switch command {
 	case "add":
+		if len(args) < 2 {
+			fmt.Println("incorrect number of arguments !! (expected 2)")
+			fmt.Println("use: taskcli add <task-description>")
+			return
+		}
+
 		taskDescription := args[1]
 		taskId, err := handlers.AddTask(taskDescription, filePath)
 		if err != nil {
@@ -33,6 +39,12 @@ func main() {
 		fmt.Printf("Task added successfully (ID: %d)", taskId)
 
 	case "update":
+		if len(args) < 2 {
+			fmt.Println("incorrect number of arguments !! (expected 2)")
+			fmt.Println("use: taskcli update <task-id>")
+			return
+		}
+
 		taskDescription := args[2]
 		taskId, err := strconv.ParseInt(args[1], 10, 64)
 
@@ -48,6 +60,12 @@ func main() {
 		fmt.Printf("Task %d updated successfully!", taskId)
 
 	case "delete":
+		if len(args) < 2 {
+			fmt.Println("incorrect number of arguments !! (expected 2)")
+			fmt.Println("use: taskcli delete <task-id>")
+			return
+		}
+
 		taskId, err := strconv.ParseInt(args[1], 10, 64)
 
 		if err != nil {
@@ -76,8 +94,7 @@ func main() {
 			fmt.Println(err)
 			panic("unable to change file status to in-progress")
 		}
-		
-		
+
 	case "mark-done":
 		newStatus := "done"
 		taskId, err := strconv.ParseInt(args[1], 10, 64)
@@ -94,15 +111,30 @@ func main() {
 		}
 
 	case "list":
-		taskList, err := handlers.GetAllTasks(filePath)
+		var fileStatus string
+		if len(args) == 1 {
+			fileStatus = ""
+		} else {
+			fileStatus = args[1]
+		}
+
+		if (fileStatus != "in-progress") && (fileStatus != "done") && (fileStatus != "") {
+			fmt.Println("No such status as: ", fileStatus)
+			fmt.Println(`Available status are: "in-progress", "done"`)
+			return
+		}
+
+		taskList, err := handlers.GetAllTasks(filePath, fileStatus)
 
 		if err != nil {
 			fmt.Println("No tasks.json file found in current directory...")
 			fmt.Println(`Create one by using: $taskcli add "task description"`)
-			return 
+			return
 		}
 
 		utils.DisplayTasks(taskList)
+	case "--help":
+		utils.ShowHelp() // show the help menu.
 	default:
 		fmt.Println(command, ": No such command found..")
 	}
